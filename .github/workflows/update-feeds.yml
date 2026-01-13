@@ -49,8 +49,9 @@ jobs:
       - name: Transform RSS feed
         env:
           KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
+          TIMEZONE_OFFSET: ${{ vars.TIMEZONE_OFFSET }}
         run: |
-          python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" --timezone-offset $TIMEZONE_OFFSET
       
       - name: Create index.html for feeds
         run: |

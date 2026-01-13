@@ -80,7 +80,6 @@ If you choose Option A, modify the "Transform RSS feed" step in `.github/workflo
 Calculate your offset from Eastern Time (ET):
 
 **During US Daylight Saving Time (March - November):**
-- **Australia (AEDT, UTC+11)**: `TIMEZONE_OFFSET=16`
 - **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=15`
 - **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=14`
 - **UK (BST, UTC+1)**: `TIMEZONE_OFFSET=5`
@@ -88,10 +87,9 @@ Calculate your offset from Eastern Time (ET):
 - **No conversion (ET)**: `TIMEZONE_OFFSET=0`
 
 **During US Standard Time (November - March):**
-- **Australia (AEDT, UTC+11)**: `TIMEZONE_OFFSET=15`
 - **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=14`
 - **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=13`
-- **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=5`
+- **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=4`
 - **Brazil (BRT, UTC-3)**: `TIMEZONE_OFFSET=2`
 - **No conversion (ET)**: `TIMEZONE_OFFSET=0`
 

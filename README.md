@@ -106,12 +106,13 @@ OUTPUT_DIR=./feeds
 UPDATE_INTERVAL=60
 
 # Timezone offset from ET in hours (optional, default: 0)
-# Examples:
+# Examples (assuming US is observing DST):
 #   0 = Eastern Time (ET) - no conversion
-#   5 = UK (GMT) is ET+5 during US DST
-#   10 = Australian Eastern Standard Time (AEST) is ET+15 during US DST
-#   15 = Australian Eastern Daylight Time (AEDT) is ET+16 during US DST
-# Note: This is a simple hour offset and doesn't account for DST changes
+#   3 = Brazil (BRT) is ET+3
+#   5 = UK (BST) is ET+5
+#   15 = Australian Eastern Standard Time (AEST) is ET+15
+# Note: This is a simple hour offset and doesn't automatically adjust for DST.
+# You may need to update when DST transitions occur.
 TIMEZONE_OFFSET=0
 ```
 
@@ -126,13 +127,13 @@ The `TIMEZONE_OFFSET` setting allows you to convert episode air times from Easte
 
 **Examples:**
 
-For Australian Eastern Daylight Time (AEDT, UTC+11):
-- During US Daylight Saving Time: Use `TIMEZONE_OFFSET=16`
-- During US Standard Time: Use `TIMEZONE_OFFSET=15`
+For Australian Eastern Daylight Time (AEDT, UTC+11, during Australian summer):
+- When US is on DST (summer): Use `TIMEZONE_OFFSET=16`
+- When US is on Standard Time (winter): Use `TIMEZONE_OFFSET=15`
 
-For UK (GMT/BST, UTC+0/+1):
-- During US Daylight Saving Time: Use `TIMEZONE_OFFSET=5`
-- During US Standard Time: Use `TIMEZONE_OFFSET=4`
+For UK (BST, UTC+1, during UK summer):
+- When US is on DST: Use `TIMEZONE_OFFSET=5`
+- When US is on Standard Time: Use `TIMEZONE_OFFSET=4`
 
 **Note:** This is a simple hour-based offset and doesn't automatically adjust for daylight saving time changes. You may need to update the offset when DST transitions occur.
 

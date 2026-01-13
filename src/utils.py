@@ -113,7 +113,7 @@ def adjust_day_for_offset(day: str, hour_offset: int, original_time_str: str) ->
     Args:
         day: Original day of the week
         hour_offset: Timezone offset in hours (can be negative or positive)
-        original_time_str: Original time string to determine if day changes
+        original_time_str: Original time string or description containing time (e.g., "7pm ET" or "7pm ET / 4pm PT Description")
         
     Returns:
         Adjusted day of the week
@@ -121,8 +121,17 @@ def adjust_day_for_offset(day: str, hour_offset: int, original_time_str: str) ->
     if not day:
         return day
     
+    # Extract just the time portion from the string if it contains ET time
+    import re
+    time_match = re.search(r'(\d+(?::\d+)?(?:am|pm))\s*ET', original_time_str, re.IGNORECASE)
+    if time_match:
+        time_str = time_match.group(1)
+    else:
+        # Fall back to parsing the whole string
+        time_str = original_time_str
+    
     # Parse the original time
-    parsed = parse_time_string(original_time_str)
+    parsed = parse_time_string(time_str)
     if not parsed:
         return day
     

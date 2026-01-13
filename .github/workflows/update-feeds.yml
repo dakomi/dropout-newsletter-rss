@@ -50,11 +50,22 @@ jobs:
         env:
           KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
         run: |
-          python transform.py --output feeds --base-url "${{ github.event.repository.html_url }}"
+          python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
       
       - name: Create index.html for feeds
         run: |
-          cat > feeds/index.html << 'EOF'
+          # Generate the feed list from actual XML files
+          BASE_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          FEED_LIST=""
+          for feed in feeds/*.xml; do
+            if [ -f "$feed" ]; then
+              filename=$(basename "$feed")
+              showname=$(echo "$filename" | sed 's/.xml$//' | sed 's/-/ /g' | awk '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) tolower(substr($i,2));}1')
+              FEED_LIST="${FEED_LIST}<li><a href=\"${filename}\">${showname}</a><br><small class=\"feed-url\">${BASE_URL}/${filename}</small></li>"
+            fi
+          done
+          
+          cat > feeds/index.html << EOF
           <!DOCTYPE html>
           <html lang="en">
           <head>
@@ -122,8 +133,8 @@ jobs:
               </div>
               
               <h2>Available Feeds</h2>
-              <ul id="feed-list">
-                  <li>Loading feeds...</li>
+              <ul>
+                  ${FEED_LIST}
               </ul>
               
               <h2>How to Use</h2>
@@ -133,40 +144,6 @@ jobs:
                   <li>Add the feed URL to your reader</li>
                   <li>Enjoy your Dropout content!</li>
               </ol>
-              
-              <script>
-                  // Dynamically list all XML feeds
-                  fetch(window.location.pathname)
-                      .then(response => response.text())
-                      .then(html => {
-                          const parser = new DOMParser();
-                          const doc = parser.parseFromString(html, 'text/html');
-                          const links = Array.from(doc.querySelectorAll('a'))
-                              .filter(a => a.href.endsWith('.xml'))
-                              .map(a => a.href);
-                          
-                          const feedList = document.getElementById('feed-list');
-                          if (links.length > 0) {
-                              feedList.innerHTML = links.map(url => {
-                                  const filename = url.split('/').pop();
-                                  const showName = filename.replace('.xml', '').split('-').map(
-                                      word => word.charAt(0).toUpperCase() + word.slice(1)
-                                  ).join(' ');
-                                  return `<li>
-                                      <a href="${filename}">${showName}</a><br>
-                                      <small class="feed-url">${url}</small>
-                                  </li>`;
-                              }).join('');
-                          } else {
-                              // Fallback: just list files in current directory
-                              feedList.innerHTML = '<li>Check the directory listing for available feeds</li>';
-                          }
-                      })
-                      .catch(() => {
-                          document.getElementById('feed-list').innerHTML = 
-                              '<li>Unable to load feed list automatically. Please check the directory listing.</li>';
-                      });
-              </script>
           </body>
           </html>
           EOF

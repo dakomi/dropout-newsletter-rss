@@ -67,9 +67,12 @@ The easiest way to use this project is with the included GitHub Actions workflow
    - Go to Settings → Secrets and variables → Actions
    - Create a new secret named `KILL_THE_NEWSLETTER_URL`
    - Paste your Kill The Newsletter feed URL as the value
-4. **Trigger the workflow**:
+4. **(Optional) Configure timezone conversion**:
+   - See [SETUP.md](SETUP.md#step-25-configure-timezone-adjustment-optional) for timezone configuration
+   - Converts episode air times from ET to your local timezone
+5. **Trigger the workflow**:
    - Go to Actions → Update RSS Feeds → Run workflow
-5. **Access your feeds** at `https://[username].github.io/[repo-name]/`
+6. **Access your feeds** at `https://[username].github.io/[repo-name]/`
 
 📖 **Detailed setup instructions**: See [SETUP.md](SETUP.md)
 

@@ -27,6 +27,80 @@ The source RSS feed URL should be kept private as a GitHub secret.
    - **Value**: Your Kill The Newsletter feed URL (e.g., `https://kill-the-newsletter.com/feeds/l9309dnw549798oyaxmv.xml`)
 5. Click **Add secret**
 
+## Step 2.5: Configure Timezone Adjustment (Optional)
+
+If you want episode air times to be converted from Eastern Time (ET) to your local timezone, you can configure a timezone offset.
+
+### For GitHub Actions
+
+You have two options to configure timezone for GitHub Actions:
+
+**Option A: Add as a Repository Variable (Recommended)**
+
+1. Go to your repository on GitHub
+2. Click on **Settings** → **Secrets and variables** → **Actions**
+3. Click on the **Variables** tab
+4. Click **New repository variable**
+5. Add the following variable:
+   - **Name**: `TIMEZONE_OFFSET`
+   - **Value**: Your timezone offset from ET in hours (e.g., `15` for AEST, `5` for UK BST)
+6. Click **Add variable**
+7. Update the workflow file `.github/workflows/update-feeds.yml` to use this variable (see below)
+
+**Option B: Edit the Workflow File Directly**
+
+1. Edit `.github/workflows/update-feeds.yml` in your repository
+2. Find the "Transform RSS feed" step (around line 49)
+3. Add the `--timezone-offset` parameter to the python command:
+   ```yaml
+   - name: Transform RSS feed
+     env:
+       KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
+     run: |
+       python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" --timezone-offset 15
+   ```
+4. Replace `15` with your desired offset
+5. Commit and push the changes
+
+**Using Repository Variable (for Option A)**
+
+If you choose Option A, modify the "Transform RSS feed" step in `.github/workflows/update-feeds.yml`:
+
+```yaml
+- name: Transform RSS feed
+  env:
+    KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
+    TIMEZONE_OFFSET: ${{ vars.TIMEZONE_OFFSET }}
+  run: |
+    python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+```
+
+### Timezone Offset Examples
+
+Calculate your offset from Eastern Time (ET):
+
+**During US Daylight Saving Time (March - November):**
+- **Australia (AEDT, UTC+11)**: `TIMEZONE_OFFSET=16`
+- **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=15`
+- **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=14`
+- **UK (BST, UTC+1)**: `TIMEZONE_OFFSET=5`
+- **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=4`
+- **Brazil (BRT, UTC-3)**: `TIMEZONE_OFFSET=3`
+- **No conversion (ET)**: `TIMEZONE_OFFSET=0`
+
+**During US Standard Time (November - March):**
+- **Australia (AEDT, UTC+11)**: `TIMEZONE_OFFSET=15`
+- **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=14`
+- **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=13`
+- **UK (BST, UTC+1)**: `TIMEZONE_OFFSET=4`
+- **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=5`
+- **Brazil (BRT, UTC-3)**: `TIMEZONE_OFFSET=2`
+
+**Important Notes:**
+- This is a simple hour-based offset and doesn't automatically adjust for daylight saving time changes
+- You may need to update the offset when DST transitions occur (typically in March and November for the US)
+- The timezone conversion will adjust both the time and the day of the week when the conversion crosses midnight
+
 ## Step 3: Trigger the Workflow
 
 The workflow will run automatically:
@@ -96,12 +170,22 @@ To test the transformer locally before deploying:
    ```bash
    cp .env.example .env
    ```
-4. Edit `.env` and add your feed URL
+4. Edit `.env` and add your feed URL and optionally configure timezone:
+   ```env
+   KILL_THE_NEWSLETTER_URL=https://kill-the-newsletter.com/feeds/xxxxx.xml
+   TIMEZONE_OFFSET=15  # Optional: Set your timezone offset (0 for no conversion)
+   ```
 5. Run the transformer:
    ```bash
    python transform.py
    ```
+   Or with command-line timezone option:
+   ```bash
+   python transform.py --timezone-offset 15
+   ```
 6. Check the `feeds/` directory for generated XML files
+
+For more details on timezone configuration, see the [README.md](README.md#timezone-configuration) file.
 
 ## Security Notes
 

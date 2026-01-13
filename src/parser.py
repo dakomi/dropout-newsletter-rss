@@ -85,6 +85,9 @@ def is_weekly_newsletter(title: str, description: str) -> bool:
     - "This week on Dropout" in the content
     - Multiple show headings in the HTML
     """
+    # Minimum number of shows required to be considered a weekly newsletter
+    MIN_SHOWS_FOR_NEWSLETTER = 2
+    
     # Check for weekly newsletter indicators
     if 'this week on dropout' in description.lower():
         return True
@@ -93,7 +96,7 @@ def is_weekly_newsletter(title: str, description: str) -> bool:
     if 'data-hs-cos-field="show_info.show_heading"' in description:
         # Count how many show headings are present
         count = description.count('data-hs-cos-field="show_info.show_heading"')
-        return count >= 2  # At least 2 shows indicates weekly newsletter
+        return count >= MIN_SHOWS_FOR_NEWSLETTER
     
     return False
 
@@ -115,9 +118,13 @@ def extract_shows_from_newsletter(entry_data: Dict[str, Any]) -> List[Dict[str, 
     parser.feed(description)
     
     episodes = []
-    for show_info in parser.get_shows():
+    for idx, show_info in enumerate(parser.get_shows()):
         show_title = show_info['title']
         show_desc = show_info.get('description', '')
+        
+        # Create unique GUID by combining original GUID with index and normalized name
+        normalized_name = normalize_show_name(show_title)
+        unique_guid = f"{entry_data['guid']}-{idx}-{normalized_name}"
         
         # Create an episode for this show
         episode = {
@@ -125,7 +132,7 @@ def extract_shows_from_newsletter(entry_data: Dict[str, Any]) -> List[Dict[str, 
             'description': show_desc,
             'link': entry_data['link'],
             'pub_date': entry_data['pub_date'],
-            'guid': f"{entry_data['guid']}-{normalize_show_name(show_title)}",
+            'guid': unique_guid,
             'show_name': extract_show_name(show_title)
         }
         episodes.append(episode)
@@ -163,7 +170,7 @@ def parse_episodes(feed_content: str) -> List[Dict[str, Any]]:
                 # Unescape HTML entities
                 raw_html = html_module.unescape(content_elem.text or '')
                 raw_content_map[entry_id.text] = raw_html
-    except Exception as e:
+    except (ET.ParseError, AttributeError) as e:
         # If XML parsing fails, fall back to feedparser only
         raw_content_map = {}
     

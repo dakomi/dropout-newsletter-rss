@@ -48,7 +48,7 @@ This implementation provides a complete RSS feed transformation system with the 
 ### GitHub Actions Workflow
 
 9. **.github/workflows/update-feeds.yml** - Automated workflow
-   - **Runs hourly** to check for new episodes
+   - **Runs every 6 hours** (4 times per day) to check for new episodes
    - Uses `KILL_THE_NEWSLETTER_URL` secret (not exposed publicly)
    - Generates RSS feeds automatically
    - Deploys to GitHub Pages
@@ -175,7 +175,7 @@ After merging this PR:
 
 1. Add the `KILL_THE_NEWSLETTER_URL` secret in GitHub repository settings
 2. Enable GitHub Pages with "GitHub Actions" as the source
-3. Manually trigger the workflow or wait for the next hourly run
+3. Manually trigger the workflow or wait for the next scheduled run (every 6 hours)
 4. Visit the GitHub Pages URL to see the generated feeds
 5. Subscribe to feeds in your RSS reader
 
@@ -191,7 +191,7 @@ After merging this PR:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  GitHub Actions (Hourly Cron)                          │
+│  GitHub Actions (Every 6 Hours)                        │
 ├─────────────────────────────────────────────────────────┤
 │  1. Fetch from Kill The Newsletter (via secret)        │
 │  2. Parse episodes and identify shows                  │

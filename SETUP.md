@@ -30,7 +30,7 @@ The source RSS feed URL should be kept private as a GitHub secret.
 ## Step 3: Trigger the Workflow
 
 The workflow will run automatically:
-- Every hour (via cron schedule)
+- Every 6 hours (via cron schedule - 4 times per day)
 - When you push to the main branch
 - When you manually trigger it
 

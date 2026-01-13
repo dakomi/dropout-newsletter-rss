@@ -19,7 +19,7 @@ This project takes the Kill The Newsletter RSS feed (which aggregates Dropout ne
 ## Features
 
 - 📺 **Per-Show RSS Feeds**: Generate individual feeds for each Dropout show
-- 🔄 **Automatic Updates**: Continuously sync with the Kill The Newsletter feed (hourly via GitHub Actions)
+- 🔄 **Automatic Updates**: Continuously sync with the Kill The Newsletter feed (every 6 hours via GitHub Actions)
 - 📋 **Complete Metadata**: Preserve episode information, descriptions, and dates
 - 🎯 **Selective Subscription**: Subscribe only to shows you want to follow
 - 🚀 **Simple Setup**: Easy to configure and deploy with GitHub Actions

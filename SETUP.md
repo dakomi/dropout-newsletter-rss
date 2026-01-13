@@ -72,7 +72,7 @@ If you choose Option A, modify the "Transform RSS feed" step in `.github/workflo
     KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
     TIMEZONE_OFFSET: ${{ vars.TIMEZONE_OFFSET }}
   run: |
-    python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+    python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" --timezone-offset $TIMEZONE_OFFSET
 ```
 
 ### Timezone Offset Examples
@@ -84,7 +84,6 @@ Calculate your offset from Eastern Time (ET):
 - **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=15`
 - **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=14`
 - **UK (BST, UTC+1)**: `TIMEZONE_OFFSET=5`
-- **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=4`
 - **Brazil (BRT, UTC-3)**: `TIMEZONE_OFFSET=3`
 - **No conversion (ET)**: `TIMEZONE_OFFSET=0`
 
@@ -92,9 +91,9 @@ Calculate your offset from Eastern Time (ET):
 - **Australia (AEDT, UTC+11)**: `TIMEZONE_OFFSET=15`
 - **Australia (AEST, UTC+10)**: `TIMEZONE_OFFSET=14`
 - **Japan (JST, UTC+9)**: `TIMEZONE_OFFSET=13`
-- **UK (BST, UTC+1)**: `TIMEZONE_OFFSET=4`
 - **UK (GMT, UTC+0)**: `TIMEZONE_OFFSET=5`
 - **Brazil (BRT, UTC-3)**: `TIMEZONE_OFFSET=2`
+- **No conversion (ET)**: `TIMEZONE_OFFSET=0`
 
 **Important Notes:**
 - This is a simple hour-based offset and doesn't automatically adjust for daylight saving time changes

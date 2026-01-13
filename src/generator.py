@@ -7,8 +7,10 @@ from datetime import datetime
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
+from .utils import format_description_with_day, get_env_variable
 
-def generate_rss_feed(show_name: str, episodes: List[Dict[str, Any]], base_url: str = "") -> str:
+
+def generate_rss_feed(show_name: str, episodes: List[Dict[str, Any]], base_url: str = "", timezone_offset: int = 0) -> str:
     """
     Generate an RSS 2.0 feed for a specific show.
     
@@ -16,6 +18,7 @@ def generate_rss_feed(show_name: str, episodes: List[Dict[str, Any]], base_url: 
         show_name: Name of the show (used in feed title)
         episodes: List of episode dictionaries for this show
         base_url: Base URL for the feed (optional)
+        timezone_offset: Timezone offset from ET in hours (default: 0)
         
     Returns:
         RSS feed XML as a string
@@ -61,7 +64,11 @@ def generate_rss_feed(show_name: str, episodes: List[Dict[str, Any]], base_url: 
         item_link.text = episode.get('link', '')
         
         item_description = ET.SubElement(item, 'description')
-        item_description.text = episode.get('description', '')
+        # Format description with day and timezone conversion
+        raw_description = episode.get('description', '')
+        air_day = episode.get('air_day', None)
+        formatted_description = format_description_with_day(raw_description, air_day, timezone_offset)
+        item_description.text = formatted_description
         
         item_pub_date = ET.SubElement(item, 'pubDate')
         item_pub_date.text = episode.get('pub_date', format_rfc822_date(datetime.utcnow()))
@@ -80,13 +87,14 @@ def generate_rss_feed(show_name: str, episodes: List[Dict[str, Any]], base_url: 
     return '\n'.join(lines)
 
 
-def generate_all_shows_feed(all_episodes: List[Dict[str, Any]], base_url: str = "") -> str:
+def generate_all_shows_feed(all_episodes: List[Dict[str, Any]], base_url: str = "", timezone_offset: int = 0) -> str:
     """
     Generate a combined RSS feed containing all shows.
     
     Args:
         all_episodes: List of all episode dictionaries
         base_url: Base URL for the feed (optional)
+        timezone_offset: Timezone offset from ET in hours (default: 0)
         
     Returns:
         RSS feed XML as a string
@@ -139,7 +147,11 @@ def generate_all_shows_feed(all_episodes: List[Dict[str, Any]], base_url: str = 
         item_link.text = episode.get('link', '')
         
         item_description = ET.SubElement(item, 'description')
-        item_description.text = episode.get('description', '')
+        # Format description with day and timezone conversion
+        raw_description = episode.get('description', '')
+        air_day = episode.get('air_day', None)
+        formatted_description = format_description_with_day(raw_description, air_day, timezone_offset)
+        item_description.text = formatted_description
         
         item_pub_date = ET.SubElement(item, 'pubDate')
         item_pub_date.text = episode.get('pub_date', format_rfc822_date(datetime.utcnow()))

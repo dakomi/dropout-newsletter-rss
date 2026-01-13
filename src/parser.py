@@ -18,20 +18,29 @@ class ShowExtractor(HTMLParser):
         super().__init__()
         self.shows = []
         self.current_show = None
+        self.current_day = None
         self.in_show_heading = False
         self.in_show_body = False
+        self.in_schedule_header = False
         self.show_body_text = []
         self.capture_depth = 0
+        self.schedule_header_depth = 0
         
     def handle_starttag(self, tag, attrs):
         attrs_dict = dict(attrs)
+        
+        # Look for schedule header (day of week)
+        if 'schedule-header__text' in attrs_dict.get('class', ''):
+            self.in_schedule_header = True
+            self.schedule_header_depth = 0
+        
         # Look for show heading elements
         if attrs_dict.get('data-hs-cos-field') == 'show_info.show_heading':
             self.in_show_heading = True
             if self.current_show and self.current_show.get('title'):
                 # Save previous show before starting a new one
                 self.shows.append(self.current_show)
-            self.current_show = {'title': '', 'description': ''}
+            self.current_show = {'title': '', 'description': '', 'day': self.current_day}
         # Look for show body elements
         elif attrs_dict.get('data-hs-cos-field') == 'show_info.show_body':
             self.in_show_body = True
@@ -39,8 +48,16 @@ class ShowExtractor(HTMLParser):
             self.capture_depth = 0
         elif self.in_show_body:
             self.capture_depth += 1
+        
+        if self.in_schedule_header:
+            self.schedule_header_depth += 1
             
     def handle_endtag(self, tag):
+        if self.in_schedule_header:
+            self.schedule_header_depth -= 1
+            if self.schedule_header_depth <= 0:
+                self.in_schedule_header = False
+                
         if self.in_show_heading:
             self.in_show_heading = False
         elif self.in_show_body:
@@ -53,6 +70,11 @@ class ShowExtractor(HTMLParser):
                     self.current_show['description'] = ' '.join(self.show_body_text)
     
     def handle_data(self, data):
+        if self.in_schedule_header:
+            stripped = data.strip()
+            if stripped and stripped in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']:
+                self.current_day = stripped
+                
         if self.in_show_heading:
             self.current_show['title'] = data.strip()
         elif self.in_show_body and data.strip():
@@ -121,6 +143,7 @@ def extract_shows_from_newsletter(entry_data: Dict[str, Any]) -> List[Dict[str, 
     for idx, show_info in enumerate(parser.get_shows()):
         show_title = show_info['title']
         show_desc = show_info.get('description', '')
+        show_day = show_info.get('day', None)
         
         # Create unique GUID by combining original GUID with index and normalized name
         normalized_name = normalize_show_name(show_title)
@@ -133,7 +156,8 @@ def extract_shows_from_newsletter(entry_data: Dict[str, Any]) -> List[Dict[str, 
             'link': entry_data['link'],
             'pub_date': entry_data['pub_date'],
             'guid': unique_guid,
-            'show_name': extract_show_name(show_title)
+            'show_name': extract_show_name(show_title),
+            'air_day': show_day
         }
         episodes.append(episode)
     

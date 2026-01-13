@@ -21,6 +21,8 @@ This project takes the Kill The Newsletter RSS feed (which aggregates Dropout ne
 - 📺 **Per-Show RSS Feeds**: Generate individual feeds for each Dropout show
 - 🔄 **Automatic Updates**: Continuously sync with the Kill The Newsletter feed (every 6 hours via GitHub Actions)
 - 📋 **Complete Metadata**: Preserve episode information, descriptions, and dates
+- 📅 **Air Day Information**: Episodes include the day of the week they air (e.g., "Friday 1:30pm ET")
+- 🌍 **Timezone Conversion**: Optionally convert air times from ET to your local timezone
 - 🎯 **Selective Subscription**: Subscribe only to shows you want to follow
 - 🚀 **Simple Setup**: Easy to configure and deploy with GitHub Actions
 - 🔒 **Privacy**: Source feed URL stored securely as a GitHub secret (not publicly visible)
@@ -102,7 +104,38 @@ OUTPUT_DIR=./feeds
 
 # Update frequency (in minutes)
 UPDATE_INTERVAL=60
+
+# Timezone offset from ET in hours (optional, default: 0)
+# Examples (assuming US is observing DST):
+#   0 = Eastern Time (ET) - no conversion
+#   3 = Brazil (BRT) is ET+3
+#   5 = UK (BST) is ET+5
+#   15 = Australian Eastern Standard Time (AEST) is ET+15
+# Note: This is a simple hour offset and doesn't automatically adjust for DST.
+# You may need to update when DST transitions occur.
+TIMEZONE_OFFSET=0
 ```
+
+### Timezone Configuration
+
+The `TIMEZONE_OFFSET` setting allows you to convert episode air times from Eastern Time (ET) to your local timezone. This is particularly useful for international viewers who want to see when episodes air in their local time.
+
+**Features:**
+- Automatically adjusts air times to your timezone
+- Adjusts the day of the week when crossing midnight
+- Includes the day of the week in episode descriptions (e.g., "Friday 1:30pm ET")
+
+**Examples:**
+
+For Australian Eastern Daylight Time (AEDT, UTC+11, during Australian summer):
+- When US is on DST (summer): Use `TIMEZONE_OFFSET=16`
+- When US is on Standard Time (winter): Use `TIMEZONE_OFFSET=15`
+
+For UK (BST, UTC+1, during UK summer):
+- When US is on DST: Use `TIMEZONE_OFFSET=5`
+- When US is on Standard Time: Use `TIMEZONE_OFFSET=4`
+
+**Note:** This is a simple hour-based offset and doesn't automatically adjust for daylight saving time changes. You may need to update the offset when DST transitions occur.
 
 ## Usage
 
@@ -112,9 +145,20 @@ UPDATE_INTERVAL=60
 # Single run
 python transform.py
 
+# Specify timezone offset for conversion (e.g., +15 for AEST)
+python transform.py --timezone-offset 15
+
 # Continuous mode (updates at specified interval)
 python transform.py --watch
 ```
+
+### Command Line Options
+
+- `--url URL`: Kill The Newsletter feed URL (overrides `KILL_THE_NEWSLETTER_URL` env var)
+- `--output DIR`: Output directory for feeds (overrides `OUTPUT_DIR` env var)
+- `--base-url URL`: Base URL for feed self-references
+- `--timezone-offset HOURS`: Timezone offset from ET in hours (overrides `TIMEZONE_OFFSET` env var)
+- `--watch`: Continuous mode (not yet implemented)
 
 ### Output
 
@@ -269,6 +313,14 @@ For issues, questions, or suggestions:
 
 ## Changelog
 
+### Version 1.1.0 (2026-01-13)
+- **NEW**: Air day information included in episode descriptions
+- **NEW**: Timezone conversion support - convert ET times to your local timezone
+- **NEW**: Automatic day adjustment when timezone conversion crosses midnight
+- **NEW**: Support for both time formats (e.g., "7pm" and "1:30pm")
+- **NEW**: Command line option `--timezone-offset` for easy timezone configuration
+- Enhanced description formatting for better readability
+
 ### Version 1.0.0 (2026-01-12)
 - Initial release
 - Per-show RSS feed generation
@@ -278,6 +330,6 @@ For issues, questions, or suggestions:
 
 ---
 
-**Last Updated**: 2026-01-12
+**Last Updated**: 2026-01-13
 
 Made with ❤️ for Dropout fans

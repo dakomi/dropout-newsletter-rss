@@ -19,10 +19,11 @@ This project takes the Kill The Newsletter RSS feed (which aggregates Dropout ne
 ## Features
 
 - 📺 **Per-Show RSS Feeds**: Generate individual feeds for each Dropout show
-- 🔄 **Automatic Updates**: Continuously sync with the Kill The Newsletter feed
+- 🔄 **Automatic Updates**: Continuously sync with the Kill The Newsletter feed (hourly via GitHub Actions)
 - 📋 **Complete Metadata**: Preserve episode information, descriptions, and dates
 - 🎯 **Selective Subscription**: Subscribe only to shows you want to follow
-- 🚀 **Simple Setup**: Easy to configure and deploy
+- 🚀 **Simple Setup**: Easy to configure and deploy with GitHub Actions
+- 🔒 **Privacy**: Source feed URL stored securely as a GitHub secret (not publicly visible)
 
 ## How It Works
 
@@ -52,6 +53,24 @@ Use your preferred RSS reader to subscribe to:
 - Individual show feeds: `https://your-domain/feeds/show-name.xml`
 - All shows feed: `https://your-domain/feeds/all-shows.xml`
 
+## Quick Start with GitHub Actions (Recommended)
+
+The easiest way to use this project is with the included GitHub Actions workflow:
+
+1. **Fork this repository** to your GitHub account
+2. **Configure GitHub Pages**:
+   - Go to Settings → Pages
+   - Set Source to "GitHub Actions"
+3. **Add your feed URL as a secret**:
+   - Go to Settings → Secrets and variables → Actions
+   - Create a new secret named `KILL_THE_NEWSLETTER_URL`
+   - Paste your Kill The Newsletter feed URL as the value
+4. **Trigger the workflow**:
+   - Go to Actions → Update RSS Feeds → Run workflow
+5. **Access your feeds** at `https://[username].github.io/[repo-name]/`
+
+📖 **Detailed setup instructions**: See [SETUP.md](SETUP.md)
+
 ## Installation
 
 ### Prerequisites
@@ -59,7 +78,7 @@ Use your preferred RSS reader to subscribe to:
 - Python 3.8+
 - pip (Python package manager)
 
-### Setup
+### Local Setup
 
 ```bash
 # Clone the repository

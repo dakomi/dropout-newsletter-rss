@@ -46,7 +46,36 @@ jobs:
         run: |
           pip install -r requirements.txt
       
+      - name: Download previous feeds (if they exist)
+        continue-on-error: true
+        run: |
+          # Try to download the current GitHub Pages deployment
+          # This allows us to preserve feeds from the last successful run
+          echo "Attempting to download previous feeds from GitHub Pages..."
+          PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+          
+          # Create feeds directory if it doesn't exist
+          mkdir -p feeds
+          
+          # Try to download each potential feed file
+          for feed_type in "all-shows" "breaking-news" "dimension-20" "game-changer" "um-actually" "make-some-noise" "dirty-laundry" "play-it-by-ear" "very-important-people" "thousand-year-old-vampire" "adventuring-party"; do
+            wget -q "${PAGES_URL}/${feed_type}.xml" -O "feeds/${feed_type}.xml" 2>/dev/null || true
+          done
+          
+          # Download index.html if it exists
+          wget -q "${PAGES_URL}/index.html" -O "feeds/index.html" 2>/dev/null || true
+          
+          # Count how many feeds were downloaded
+          FEED_COUNT=$(find feeds -name "*.xml" -type f 2>/dev/null | wc -l)
+          if [ "$FEED_COUNT" -gt 0 ]; then
+            echo "✓ Downloaded $FEED_COUNT existing feed(s) from previous deployment"
+          else
+            echo "ℹ No previous feeds found (this may be the first run)"
+          fi
+      
       - name: Transform RSS feed
+        id: transform
+        continue-on-error: true
         env:
           KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
           TIMEZONE_OFFSET: ${{ vars.TIMEZONE_OFFSET }}
@@ -58,6 +87,7 @@ jobs:
             echo "Attempt $attempt of $max_attempts..."
             if python transform.py --output feeds --base-url "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}" --timezone-offset $TIMEZONE_OFFSET; then
               echo "✓ Feed transformation succeeded"
+              echo "status=success" >> $GITHUB_OUTPUT
               exit 0
             fi
             
@@ -71,7 +101,25 @@ jobs:
           done
           
           echo "✗ All attempts failed"
+          echo "status=failed" >> $GITHUB_OUTPUT
           exit 1
+      
+      - name: Check transformation result and fallback if needed
+        run: |
+          # Check if transformation succeeded
+          if [ "${{ steps.transform.outputs.status }}" = "success" ]; then
+            echo "✓ Using newly generated feeds"
+          else
+            # Check if we have feeds from a previous run
+            FEED_COUNT=$(find feeds -name "*.xml" -type f 2>/dev/null | wc -l)
+            if [ "$FEED_COUNT" -gt 0 ]; then
+              echo "⚠ Transform failed, but found $FEED_COUNT feed(s) from previous run"
+              echo "ℹ Using cached feeds from last successful deployment"
+            else
+              echo "✗ Transform failed and no previous feeds available"
+              exit 1
+            fi
+          fi
       
       - name: Create index.html for feeds
         run: |
@@ -79,6 +127,12 @@ jobs:
           if [ ! -d "feeds" ]; then
             echo "Error: feeds directory not found. Feed transformation likely failed."
             exit 1
+          fi
+          
+          # Check if we already have an index.html from the cached deployment
+          if [ -f "feeds/index.html" ] && [ "${{ steps.transform.outputs.status }}" != "success" ]; then
+            echo "ℹ Using cached index.html from previous deployment"
+            exit 0
           fi
           
           # Generate the feed list from actual XML files

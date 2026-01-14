@@ -55,9 +55,9 @@ Avoid adding new dependencies unless absolutely necessary to keep the project li
 ### Running Tests
 ```bash
 python tests/test_parser.py
-python tests/test_workflow.py
-python tests/test_timezone.py
 python tests/test_real_feed.py
+python tests/test_timezone.py
+python tests/test_workflow.py
 ```
 
 ## Building and Deployment

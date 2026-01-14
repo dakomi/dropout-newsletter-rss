@@ -26,14 +26,14 @@ def fetch_feed(url: str, max_retries: int = 3, timeout: int = 30) -> Optional[st
             return response.text
         except requests.exceptions.Timeout:
             if attempt < max_retries:
-                wait_time = 5 * attempt  # Progressive backoff: 5s, 10s, 15s
+                wait_time = 5 * attempt  # Linear backoff: 5s, 10s, 15s
                 print(f"Timeout on attempt {attempt}/{max_retries}. Retrying in {wait_time}s...")
                 time.sleep(wait_time)
             else:
                 print(f"Error fetching feed from {url}: Request timed out after {max_retries} attempts")
-                return None
         except requests.exceptions.RequestException as e:
             print(f"Error fetching feed from {url}: {e}")
             return None
     
+    # All retries exhausted
     return None

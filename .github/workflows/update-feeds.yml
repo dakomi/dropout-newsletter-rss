@@ -57,13 +57,16 @@ jobs:
           # Create feeds directory if it doesn't exist
           mkdir -p feeds
           
-          # Try to download each potential feed file
-          for feed_type in "all-shows" "breaking-news" "dimension-20" "game-changer" "um-actually" "make-some-noise" "dirty-laundry" "play-it-by-ear" "very-important-people" "thousand-year-old-vampire" "adventuring-party"; do
-            wget -q "${PAGES_URL}/${feed_type}.xml" -O "feeds/${feed_type}.xml" 2>/dev/null || true
-          done
-          
-          # Download index.html if it exists
-          wget -q "${PAGES_URL}/index.html" -O "feeds/index.html" 2>/dev/null || true
+          # Try to download the index page to get the list of feeds
+          if wget -q "${PAGES_URL}/index.html" -O "/tmp/prev-index.html" 2>/dev/null; then
+            # Extract feed filenames from the index.html
+            grep -oP 'href="\K[^"]*\.xml' /tmp/prev-index.html 2>/dev/null | while read -r feed_file; do
+              wget -q "${PAGES_URL}/${feed_file}" -O "feeds/${feed_file}" 2>/dev/null || true
+            done
+            
+            # Also save the index.html
+            cp /tmp/prev-index.html feeds/index.html 2>/dev/null || true
+          fi
           
           # Count how many feeds were downloaded
           FEED_COUNT=$(find feeds -name "*.xml" -type f 2>/dev/null | wc -l)

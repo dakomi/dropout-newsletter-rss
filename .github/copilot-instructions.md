@@ -41,7 +41,7 @@ The project uses minimal dependencies:
 - **python-dotenv==1.0.0**: Environment variable management
 - **requests==2.31.0**: HTTP requests for fetching feeds
 
-Avoid adding new dependencies unless absolutely necessary to keep the project lightweight.
+Avoid adding new dependencies unless absolutely necessary to keep the project lightweight. When updating dependencies, check for security vulnerabilities and update to patched versions as needed.
 
 ## Testing Approach
 
@@ -57,6 +57,7 @@ Avoid adding new dependencies unless absolutely necessary to keep the project li
 python tests/test_parser.py
 python tests/test_workflow.py
 python tests/test_timezone.py
+python tests/test_real_feed.py
 ```
 
 ## Building and Deployment

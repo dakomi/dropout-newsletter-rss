@@ -31,9 +31,7 @@ def fetch_feed(url: str, max_retries: int = 3, timeout: int = 30) -> Optional[st
                 time.sleep(wait_time)
             else:
                 print(f"Error fetching feed from {url}: Request timed out after {max_retries} attempts")
+                return None
         except requests.exceptions.RequestException as e:
             print(f"Error fetching feed from {url}: {e}")
             return None
-    
-    # All retries exhausted
-    return None

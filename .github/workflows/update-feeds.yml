@@ -51,7 +51,7 @@ jobs:
           KILL_THE_NEWSLETTER_URL: ${{ secrets.KILL_THE_NEWSLETTER_URL }}
           TIMEZONE_OFFSET: ${{ vars.TIMEZONE_OFFSET }}
         run: |
-          # Retry up to 3 times with exponential backoff for transient failures
+          # Retry up to 3 times with linear backoff for transient failures
           max_attempts=3
           attempt=1
           while [ $attempt -le $max_attempts ]; do
@@ -62,7 +62,7 @@ jobs:
             fi
             
             if [ $attempt -lt $max_attempts ]; then
-              # Wait before retrying (exponential backoff: 10s, 20s)
+              # Wait before retrying (linear backoff: 10s, 20s)
               wait_time=$((10 * attempt))
               echo "⚠ Attempt failed. Waiting ${wait_time}s before retry..."
               sleep $wait_time

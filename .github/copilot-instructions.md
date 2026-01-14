@@ -116,11 +116,17 @@ python transform.py
 2. Functions handle day-of-week adjustment when crossing midnight
 3. Support both "7pm" and "1:30pm" time formats
 
-## Environment Variables
+## Environment Variables and Configuration
 
-- `KILL_THE_NEWSLETTER_URL`: RSS feed URL (required, stored as secret in GitHub Actions)
-- `OUTPUT_DIR`: Directory for generated feeds (default: ./feeds)
+### Local Development (.env file)
+- `KILL_THE_NEWSLETTER_URL`: RSS feed URL (required for local runs)
+- `OUTPUT_DIR`: Directory for generated feeds (default: ./feeds, git-ignored)
 - `TIMEZONE_OFFSET`: Hours offset from ET for timezone conversion (default: 0)
+
+### GitHub Actions Configuration
+- `KILL_THE_NEWSLETTER_URL`: Stored as a GitHub secret (never expose in code or logs)
+- `TIMEZONE_OFFSET`: Stored as a GitHub Actions variable (can be configured per repository)
+- Output directory is always `feeds/` in the workflow
 
 ## Security Considerations
 
